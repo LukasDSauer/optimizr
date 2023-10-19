@@ -97,7 +97,7 @@ simann <- function(par, fn,
     par_names <- paste0("par", (1:length(par)))
   }
   if(is.null(fn_name)){
-    fn_name <- fn
+    fn_name <- "fn"
   }
   names(trace) <- c("it", par_names, fn_name, "temp")
 
@@ -169,7 +169,7 @@ genptry <- function(p, scale){
 #' Transform an interval to the unit interval
 #'
 #' A monotonously increasing bijection on the real line that maps the interval
-#' $[l, u]$ to the unit interval $[0, 1]$.
+#' $[\text{l}, \text{u}]$ to the unit interval $[0, 1]$.
 #'
 #' @param x any real number
 #' @param lower a real number, the lower bound of the interval
@@ -185,7 +185,7 @@ phi <- function(x, lower, upper){
 #' Transform the unit interval to another interval
 #'
 #' A monotonously increasing bijection on the real line that maps the unit
-#' interval $[0, 1]$ to the interval $[l, u]$.
+#' interval $[0, 1]$ to the interval $[\text{lower}, \text{u}]$.
 #'
 #' @param x any real number
 #' @param lower a real number, the lower bound of the interval
