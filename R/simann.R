@@ -92,10 +92,14 @@ simann <- function(par, fn,
   yopt <- y
   trace <- data.frame((1:maxit), rep(par, maxit), rep(y, maxit), rep(NA_real_, maxit))
   par_names <- names(par)
+  fn_name <- names(y)
   if(is.null(par_names)){
     par_names <- paste0("par", (1:length(par)))
   }
-  names(trace) <- c("it", par_names, "fn", "temp")
+  if(is.null(fn_name)){
+    fn_name <- fn
+  }
+  names(trace) <- c("it", par_names, fn_name, "temp")
 
   for(i in (1:maxit)){
     tnow <- temp / log(((i-1) %/% tmax)*tmax + exp(1))
