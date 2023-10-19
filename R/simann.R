@@ -23,7 +23,7 @@
 #' that $i$-th component is not in boundary, i.e. $p^{\text{try}}_i\notin [0, 1]$.
 #' Then division by 2 with remainder gives us $p^{\text{try}}_i\mod 2\in [0, 2)$,
 #' when identifying $\mathbb R/2\mathbb Z\cong [0, 2)$ as sets. Then either
-#' $p^{\text{try}}_i\mod 2\in [0, 1]$ or $1 - p^{\text{try}}_i + 2\mod 2\in [0, 1]$.
+#' $p^{\text{try}}_i\mod 2\in [0, 1]$ or $2 - p^{\text{try}}_i \mod 2\in [0, 1]$.
 #' Then, use this updated component of the candidate.
 #'
 #' @param par numeric, start value for the algorithm
@@ -49,16 +49,34 @@
 #'
 #' @examples
 #' fun <- function(x) {1 - dnorm(x, mean = 0, sd = 20)*10}
-#' simann(par = -10, fn = fun,
-#'        lower = NA_real_, upper = NA_real_,
-#'        control = list(maxit = 10000,
-#'                       temp = 2000))
+#' res <- simann(par = -10, fn = fun,
+#'               control = list(maxit = 10000,
+#'                              temp = 2000))
+#' plot(res$trace$it, res$trace$fn)
+#' plot(res$trace$it, res$trace$par1)
+#' # With boundaries and named parameters
+#' resbd <- simann(par = c(x = -1), fn = fun,
+#'                 lower = -2, upper = 2,
+#'                 control = list(maxit = 10000,
+#'                                temp = 2000))
+#' plot(resbd$trace$it, resbd$trace$fn)
+#' plot(resbd$trace$it, resbd$trace$x)
 simann <- function(par, fn,
-                   lower, upper,
+                   lower = NULL, upper = NULL,
                    control){
   maxit <- 10000
   temp <- 10
   tmax <- 10
+  bounded <- !is.null(lower) | !is.null(upper)
+  if(bounded){
+    if(length(lower) != length(par) | length(upper) != length(par)){
+      stop("Lower and upper bound must have the same length as the
+           start vector!")
+    }
+    if(!all(lower < upper)){
+      stop("Lower bound must be below upper bound!")
+    }
+  }
   if(!is.null(control$maxit)){
     maxit <- control$maxit
   }
@@ -68,17 +86,46 @@ simann <- function(par, fn,
   if(!is.null(control$temp)){
     temp <- control$temp
   }
-
   p <- par
   y <- fn(par)
   popt <- par
   yopt <- y
   trace <- data.frame((1:maxit), rep(par, maxit), rep(y, maxit), rep(NA_real_, maxit))
+  par_names <- names(par)
+  if(is.null(par_names)){
+    par_names <- paste0("par", (1:length(par)))
+  }
+  names(trace) <- c("it", par_names, "fn", "temp")
 
   for(i in (1:maxit)){
     tnow <- temp / log(((i-1) %/% tmax)*tmax + exp(1))
     scale <- tnow/temp
     ptry <- genptry(p, scale)
+    if(bounded){
+      for(j in (1:length(par))){
+
+        # If coordinate j below lower boundary and there is no upper boundary,
+        # then reflect along lower boundary.
+        if(ptry[j] < lower[j] & upper[j] == Inf){
+          ptry[j] <- 2*lower[j] - ptry[j]
+        }
+        # If coordinate j above upper boundary and there is no lower boundary,
+        # then reflect along upper boundary.
+        else if(ptry[j] > upper[j] & lower[j] == -Inf){
+          ptry[j] <- 2*upper[j] - ptry[j]
+        }
+        # If there are finite upper and lower boundaries, alternately reflect
+        # along upper and lower boundaries until we are in the interval.
+        else if(ptry[j] > upper[j] | ptry[j] < lower[j]){
+          phi_j <- phi(x = ptry[j], lower = lower[j], upper = upper[j]) %% 2
+          if(1 >= phi_j){
+            ptry[j] <- phiinv(x = phi_j, lower = lower[j], upper = upper[j])
+          } else{
+            ptry[j] <- phiinv(x = 2 - phi_j, lower = lower[j], upper = upper[j])
+          }
+        }
+      }
+    }
     ytry <- fn(ptry)
     dy <- ytry - y
     if(dy < 0){
@@ -100,6 +147,50 @@ simann <- function(par, fn,
 }
 
 
+#' Generate a candidate point in the neighborhood
+#'
+#' Using a Gaussian kernel of standard deviation *scale* around the current
+#' point, this function generates a new point nearby.
+#'
+#' @param p a numeric vector
+#' @param scale a real number, the radius of the Gaussian
+#'
+#' @return a numeric vector
+#'
+#' @examples
+#' genptry(c(0, 0), 2)
 genptry <- function(p, scale){
     return(p + scale * rnorm(n = length(p), mean = 0, sd = 1))
+}
+#' Transform an interval to the unit interval
+#'
+#' A monotonously increasing bijection on the real line that maps the interval
+#' $[l, u]$ to the unit interval $[0, 1]$.
+#'
+#' @param x any real number
+#' @param lower a real number, the lower bound of the interval
+#' @param upper  a real number, the upper bound of the interval
+#'
+#' @return a real number
+#'
+#' @examples
+#' phiinv(phi(7, 2, 3), 2, 3) == 7
+phi <- function(x, lower, upper){
+  return((x - lower)/(upper - lower))
+}
+#' Transform the unit interval to another interval
+#'
+#' A monotonously increasing bijection on the real line that maps the unit
+#' interval $[0, 1]$ to the interval $[l, u]$.
+#'
+#' @param x any real number
+#' @param lower a real number, the lower bound of the interval
+#' @param upper  a real number, the upper bound of the interval
+#'
+#' @return a real number
+#'
+#' @examples
+#' phiinv(phi(7, 2, 3), 2, 3) == 7
+phiinv <- function(x, lower, upper){
+  return((upper - lower)*x + lower)
 }
