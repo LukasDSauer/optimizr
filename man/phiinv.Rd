@@ -18,7 +18,7 @@ a real number
 }
 \description{
 A monotonously increasing bijection on the real line that maps the unit
-interval $\link{0, 1}$ to the interval $\link{l, u}$.
+interval $\link{0, 1}$ to the interval $\link[=\\text{lower}, \\text{u}]{\text{lower}, \text{u}}$.
 }
 \examples{
 phiinv(phi(7, 2, 3), 2, 3) == 7

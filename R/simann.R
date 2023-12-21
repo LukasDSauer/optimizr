@@ -36,9 +36,12 @@
 #'
 #' The list `control` may contain the following objects:
 #' * `maxit`: the maximal number of temperature steps, defaults to `10000`,
-#' * `temp`: the initial temperature, defaults to `10``,`
+#' * `temp`: the initial temperature, defaults to `10`,
 #' * `tmax`: the maximal number of function evaluations at each
-#'    temperature step, defaults to `10`.
+#'    temperature step, defaults to `10`,
+#' * `fnscale`: A scaling factor to be multiplied with the value of `fn` during
+#'    optimization. If it is negative, it turns the problem into a maximization
+#'    problem.
 #'
 #' @return a list containing `par`, the parameter combination of the optimum,
 #' `value`, the optimal function value, and `trace`, a `data.frame` of all visited
@@ -68,6 +71,7 @@ simann <- function(par, fn,
   temp <- 10
   tmax <- 10
   bounded <- !is.null(lower) | !is.null(upper)
+  fnscale <- 1
   if(bounded){
     if(length(lower) != length(par) | length(upper) != length(par)){
       stop("Lower and upper bound must have the same length as the
@@ -86,11 +90,20 @@ simann <- function(par, fn,
   if(!is.null(control$temp)){
     temp <- control$temp
   }
+  if(!is.null(control$fnscale)){
+    fnscale <- control$fnscale
+  }
   p <- par
-  y <- fn(par)
+  y_raw <- fn(par)
+  y <- fnscale*y_raw
   popt <- par
+  yopt_raw <- y_raw
   yopt <- y
-  trace <- data.frame((1:maxit), rep(par, maxit), rep(y, maxit), rep(NA_real_, maxit))
+  trace <- data.frame((1:maxit),
+                      matrix(rep(par, maxit), nrow = maxit,
+                             ncol = length(par),
+                             byrow = TRUE),
+                      rep(y, maxit), rep(NA_real_, maxit))
   par_names <- names(par)
   fn_name <- names(y)
   if(is.null(par_names)){
@@ -130,23 +143,27 @@ simann <- function(par, fn,
         }
       }
     }
-    ytry <- fn(ptry)
+    ytry_raw <- fn(ptry)
+    ytry <- fnscale*ytry_raw
     dy <- ytry - y
     if(dy < 0){
+      y_raw <- ytry_raw
       y <- ytry
       p <- ptry
     } else if(runif(1, 0, 1) < exp(-dy/(tnow))){
+      y_raw <- ytry_raw
       y <- ytry
       p <- ptry
     }
     if(ytry < yopt){
+      yopt_raw <- ytry_raw
       yopt <- ytry
       popt <- ptry
     }
-    trace[i,] <- c(i, p, y, tnow)
+    trace[i,] <- c(i, p, y_raw, tnow)
   }
   return(list(par = popt,
-              value = yopt,
+              value = yopt_raw,
               trace = trace))
 }
 

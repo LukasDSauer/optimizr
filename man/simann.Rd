@@ -57,9 +57,12 @@ Then, use this updated component of the candidate.
 The list \code{control} may contain the following objects:
 \itemize{
 \item \code{maxit}: the maximal number of temperature steps, defaults to \code{10000},
-\item \code{temp}: the initial temperature, defaults to \verb{10``,}
+\item \code{temp}: the initial temperature, defaults to \code{10},
 \item \code{tmax}: the maximal number of function evaluations at each
-temperature step, defaults to \code{10}.
+temperature step, defaults to \code{10},
+\item \code{fnscale}: A scaling factor to be multiplied with the value of \code{fn} during
+optimization. If it is negative, it turns the problem into a maximization
+problem.
 }
 }
 
