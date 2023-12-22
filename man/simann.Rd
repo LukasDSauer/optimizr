@@ -60,26 +60,46 @@ The list \code{control} may contain the following objects:
 \item \code{temp}: the initial temperature, defaults to \code{10},
 \item \code{tmax}: the maximal number of function evaluations at each
 temperature step, defaults to \code{10},
-\item \code{fnscale}: A scaling factor to be multiplied with the value of \code{fn} during
+\item \code{fnscale}: a scaling factor by which the value of \code{fn} is divided during
 optimization. If it is negative, it turns the problem into a maximization
-problem.
+problem,
+\item \code{REPORT}: an integer determining that the algorithms current state is
+reported every \code{REPORT} steps. If \code{NA_integer_}, no trace is reported. Defaults
+to 100. Also determines how often the progress bar is updated.
 }
 }
 
 \examples{
-fun <- function(x) {1 - dnorm(x, mean = 0, sd = 20)*10}
-res <- simann(par = -10, fn = fun,
-              control = list(maxit = 10000,
-                             temp = 2000))
+# Minimization problem:
+# "wild" function from the optim examples, global minimum at about -15.81515
+fw <- function (x)
+  (10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80)
+plot(fw, -50, 50, n = 1000, main = "optim() minimising 'wild function'")
+res <- simann(par = 50, fn = fw,
+              control = list(maxit = 1000000,
+                             temp = 100))
+# TODO: This still takes a lot longer than for optim (maxit = 20000, temp = 20)
+# Perhaps due to the fact that they have parscale = 20, which I did not implement
 plot(res$trace$it, res$trace$fn)
 plot(res$trace$it, res$trace$par1)
-# With boundaries and named parameters
-resbd <- simann(par = c(x = -1), fn = fun,
-                lower = -2, upper = 2,
-                control = list(maxit = 10000,
-                               temp = 2000))
-plot(resbd$trace$it, resbd$trace$fn)
-plot(resbd$trace$it, resbd$trace$x)
+
+# Bounded maximization problem:
+# The "wild" function has a local maximum around 46
+resmx <- simann(par = 3, fn = fw,
+                lower = 0, upper = 46,
+                control = list(maxit = 1000000,
+                               temp = 100,
+                               fnscale = -1))
+
+# Diagnostics with error bar and frequent trace reports
+# Attention: Both error bar and reports impede performance!
+\dontrun{
+  progressr::handlers(global = TRUE)
+}
+resdiag <- simann(par = 50, fn = fw,
+                  control = list(maxit = 20000,
+                                 temp = 100,
+                                  REPORT = 1))
 }
 \references{
 Haario H, Saksman E. Simulated Annealing Process in General State Space. Advances in Applied Probability, Vol. 23, No. 4 (Dec., 1991), pp. 866-893, \link{https://doi.org/10.2307/1427681}.

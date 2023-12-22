@@ -39,9 +39,12 @@
 #' * `temp`: the initial temperature, defaults to `10`,
 #' * `tmax`: the maximal number of function evaluations at each
 #'    temperature step, defaults to `10`,
-#' * `fnscale`: A scaling factor to be multiplied with the value of `fn` during
+#' * `fnscale`: a scaling factor by which the value of `fn` is divided during
 #'    optimization. If it is negative, it turns the problem into a maximization
-#'    problem.
+#'    problem,
+#' * `REPORT`: an integer determining that the algorithms current state is
+#'    reported every `REPORT` steps. If `NA_integer_`, no trace is reported. Defaults
+#'    to 100. Also determines how often the progress bar is updated.
 #'
 #' @return a list containing `par`, the parameter combination of the optimum,
 #' `value`, the optimal function value, and `trace`, a `data.frame` of all visited
@@ -52,30 +55,49 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' progressr::handlers(global = TRUE)
-#' }
-#' fun <- function(x) {1 - dnorm(x, mean = 0, sd = 20)*10}
-#' res <- simann(par = -10, fn = fun,
-#'               control = list(maxit = 10000,
-#'                              temp = 2000))
+#' # Minimization problem:
+#' # "wild" function from the optim examples, global minimum at about -15.81515
+#' fw <- function (x)
+#'   (10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80)
+#' plot(fw, -50, 50, n = 1000, main = "optim() minimising 'wild function'")
+#' res <- simann(par = 50, fn = fw,
+#'               control = list(maxit = 1000000,
+#'                              temp = 100))
+#' # TODO: This still takes a lot longer than for optim (maxit = 20000, temp = 20)
+#' # Perhaps due to the fact that they have parscale = 20, which I did not implement
 #' plot(res$trace$it, res$trace$fn)
 #' plot(res$trace$it, res$trace$par1)
-#' # With boundaries and named parameters
-#' resbd <- simann(par = c(x = -1), fn = fun,
-#'                 lower = -2, upper = 2,
-#'                 control = list(maxit = 10000,
-#'                                temp = 2000))
-#' plot(resbd$trace$it, resbd$trace$fn)
-#' plot(resbd$trace$it, resbd$trace$x)
+#'
+#' # Bounded maximization problem:
+#' # The "wild" function has a local maximum around 46
+#' resmx <- simann(par = 3, fn = fw,
+#'                 lower = 0, upper = 46,
+#'                 control = list(maxit = 1000000,
+#'                                temp = 100,
+#'                                fnscale = -1))
+#'
+#' # Diagnostics with error bar and frequent trace reports
+#' # Attention: Both error bar and reports impede performance!
+#' \dontrun{
+#'   progressr::handlers(global = TRUE)
+#' }
+#' resdiag <- simann(par = 50, fn = fw,
+#'                   control = list(maxit = 20000,
+#'                                  temp = 100,
+#'                                   REPORT = 1))
 simann <- function(par, fn,
                    lower = NULL, upper = NULL,
                    control){
   maxit <- 10000
   temp <- 10
   tmax <- 10
+  # Keeping the original function in case of transformation
+  fn_raw <- fn
+  # Should the algorithm's trace be reported every REPORT steps?
+  trace_rep <- TRUE
+  REPORT <- 100
+  # Is the parameter space bounded?
   bounded <- !is.null(lower) | !is.null(upper)
-  fnscale <- 1
   if(bounded){
     if(length(lower) != length(par) | length(upper) != length(par)){
       stop("Lower and upper bound must have the same length as the
@@ -83,6 +105,16 @@ simann <- function(par, fn,
     }
     if(!all(lower < upper)){
       stop("Lower bound must be below upper bound!")
+    }
+    if(!is.null(lower)){
+      if(lower > par){
+        stop("Lower bound must be less or equal to start parameter!")
+      }
+    }
+    if(!is.null(upper)){
+      if(upper < par){
+        stop("Upper bound must be greater or equal to start parameter!")
+      }
     }
   }
   if(!is.null(control$maxit)){
@@ -96,18 +128,19 @@ simann <- function(par, fn,
   }
   if(!is.null(control$fnscale)){
     fnscale <- control$fnscale
+    fn <- function(x) {fn_raw(x)/fnscale}
   }
+  if(!is.null(control$REPORT)){
+    REPORT <- control$REPORT
+    trace_rep <- !is.na(REPORT)
+  }
+
+
+
   p <- par
-  y_raw <- fn(par)
-  y <- fnscale*y_raw
+  y <- fn(par)
   popt <- par
-  yopt_raw <- y_raw
   yopt <- y
-  trace <- data.frame((1:maxit),
-                      matrix(rep(par, maxit), nrow = maxit,
-                             ncol = length(par),
-                             byrow = TRUE),
-                      rep(y, maxit), rep(NA_real_, maxit))
   par_names <- names(par)
   fn_name <- names(y)
   if(is.null(par_names)){
@@ -116,9 +149,22 @@ simann <- function(par, fn,
   if(is.null(fn_name)){
     fn_name <- "fn"
   }
-  names(trace) <- c("it", par_names, fn_name, "temp")
 
-  pb <- progressr::progressor(steps = maxit,
+  if(trace_rep){
+    trace_len <- floor(maxit / REPORT)
+    trace <- data.frame((1:trace_len),
+                        matrix(rep(par, trace_len),
+                               nrow = trace_len,
+                               ncol = length(par),
+                               byrow = TRUE),
+                        rep(y, trace_len),
+                        rep(NA_real_, trace_len),
+                        rep(NA_real_, trace_len),
+                        rep(NA_real_, trace_len))
+    names(trace) <- c("it", par_names, fn_name, "temp", "dy", "p_thresh")
+  }
+
+  pb <- progressr::progressor(steps = trace_len,
                               label = "Simulated annealing",
                               message = "Running simulated annealing")
   pb("Running simulated annealing", class = "sticky", amount = 0)
@@ -152,29 +198,32 @@ simann <- function(par, fn,
         }
       }
     }
-    ytry_raw <- fn(ptry)
-    ytry <- fnscale*ytry_raw
+    ytry <- fn(ptry)
     dy <- ytry - y
-    if(dy < 0){
-      y_raw <- ytry_raw
+    p_thresh <- NA_real_
+    if(dy <= 0){
       y <- ytry
       p <- ptry
-    } else if(runif(1, 0, 1) < exp(-dy/(tnow))){
-      y_raw <- ytry_raw
+    } else if(runif(1, 0, 1) < exp(-dy/tnow)){
       y <- ytry
       p <- ptry
+      p_thresh <- exp(-dy/tnow)
     }
     if(ytry < yopt){
-      yopt_raw <- ytry_raw
       yopt <- ytry
       popt <- ptry
     }
-    trace[i,] <- c(i, p, y_raw, tnow)
-    pb()
+    if(trace_rep & i %% REPORT == 0){
+      trace[floor(i / REPORT),] <- c(i, p, y, tnow, dy, p_thresh)
+      pb()
+    }
   }
-  return(list(par = popt,
-              value = yopt_raw,
-              trace = trace))
+  res <- list(par = popt,
+              value = fn_raw(popt))
+  if(trace_rep){
+    res <- c(res, trace = list(trace))
+  }
+  return(res)
 }
 
 
