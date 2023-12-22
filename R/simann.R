@@ -48,9 +48,13 @@
 #' parameter values.
 #'
 #' @references Haario H, Saksman E. Simulated Annealing Process in General State Space. Advances in Applied Probability, Vol. 23, No. 4 (Dec., 1991), pp. 866-893, [https://doi.org/10.2307/1427681].
+#'
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' progressr::handlers(global = TRUE)
+#' }
 #' fun <- function(x) {1 - dnorm(x, mean = 0, sd = 20)*10}
 #' res <- simann(par = -10, fn = fun,
 #'               control = list(maxit = 10000,
@@ -114,6 +118,11 @@ simann <- function(par, fn,
   }
   names(trace) <- c("it", par_names, fn_name, "temp")
 
+  pb <- progressr::progressor(steps = maxit,
+                              label = "Simulated annealing",
+                              message = "Running simulated annealing")
+  pb("Running simulated annealing", class = "sticky", amount = 0)
+
   for(i in (1:maxit)){
     tnow <- temp / log(((i-1) %/% tmax)*tmax + exp(1))
     scale <- tnow/temp
@@ -161,6 +170,7 @@ simann <- function(par, fn,
       popt <- ptry
     }
     trace[i,] <- c(i, p, y_raw, tnow)
+    pb()
   }
   return(list(par = popt,
               value = yopt_raw,
