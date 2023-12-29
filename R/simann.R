@@ -98,7 +98,7 @@ simann <- function(par, fn,
   maxit <- 10000
   temp <- 10
   tmax <- 10
-  parscale <- 0
+  parscale <- NULL
   # Keeping the original function in case of transformation
   fn_raw <- fn
   # Should the algorithm's trace be reported every REPORT steps?
