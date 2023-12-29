@@ -71,15 +71,17 @@ to 100. Also determines how often the progress bar is updated.
 
 \examples{
 # Minimization problem:
-# "wild" function from the optim examples, global minimum at about -15.81515
+# "wild" function from the optim() examples, global minimum at about -15.81515
 fw <- function (x)
   (10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80)
-plot(fw, -50, 50, n = 1000, main = "optim() minimising 'wild function'")
+plot(fw, -50, 50, n = 1000, main = "The 'wild function' from the optim() examples")
 res <- simann(par = 50, fn = fw,
-              control = list(maxit = 1000000,
-                             temp = 100))
-# TODO: This still takes a lot longer than for optim (maxit = 20000, temp = 20)
-# Perhaps due to the fact that they have parscale = 20, which I did not implement
+              control = list(maxit = 20000,
+                             temp = 20,
+                             parscale = 20))
+res$par
+res$value
+
 plot(res$trace$it, res$trace$fn)
 plot(res$trace$it, res$trace$par1)
 
@@ -87,19 +89,23 @@ plot(res$trace$it, res$trace$par1)
 # The "wild" function has a local maximum around 46
 resmx <- simann(par = 3, fn = fw,
                 lower = 0, upper = 46,
-                control = list(maxit = 1000000,
-                               temp = 100,
-                               fnscale = -1))
+                control = list(maxit = 20000,
+                               temp = 20,
+                               fnscale = -1,
+                               parscale = 20))
+resmx$par
+resmx$value
 
 # Diagnostics with error bar and frequent trace reports
 # Attention: Both error bar and reports impede performance!
 \dontrun{
-  progressr::handlers(global = TRUE)
-}
+progressr::handlers(global = TRUE)
 resdiag <- simann(par = 50, fn = fw,
                   control = list(maxit = 20000,
-                                 temp = 100,
-                                  REPORT = 1))
+                                 temp = 20,
+                                 parscale = 20,
+                                 REPORT = 1))
+}
 }
 \references{
 Haario H, Saksman E. Simulated Annealing Process in General State Space. Advances in Applied Probability, Vol. 23, No. 4 (Dec., 1991), pp. 866-893, \link{https://doi.org/10.2307/1427681}.

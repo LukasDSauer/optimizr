@@ -56,15 +56,17 @@
 #'
 #' @examples
 #' # Minimization problem:
-#' # "wild" function from the optim examples, global minimum at about -15.81515
+#' # "wild" function from the optim() examples, global minimum at about -15.81515
 #' fw <- function (x)
 #'   (10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80)
-#' plot(fw, -50, 50, n = 1000, main = "optim() minimising 'wild function'")
+#' plot(fw, -50, 50, n = 1000, main = "The 'wild function' from the optim() examples")
 #' res <- simann(par = 50, fn = fw,
-#'               control = list(maxit = 1000000,
-#'                              temp = 100))
-#' # TODO: This still takes a lot longer than for optim (maxit = 20000, temp = 20)
-#' # Perhaps due to the fact that they have parscale = 20, which I did not implement
+#'               control = list(maxit = 20000,
+#'                              temp = 20,
+#'                              parscale = 20))
+#' res$par
+#' res$value
+#'
 #' plot(res$trace$it, res$trace$fn)
 #' plot(res$trace$it, res$trace$par1)
 #'
@@ -72,25 +74,31 @@
 #' # The "wild" function has a local maximum around 46
 #' resmx <- simann(par = 3, fn = fw,
 #'                 lower = 0, upper = 46,
-#'                 control = list(maxit = 1000000,
-#'                                temp = 100,
-#'                                fnscale = -1))
+#'                 control = list(maxit = 20000,
+#'                                temp = 20,
+#'                                fnscale = -1,
+#'                                parscale = 20))
+#' resmx$par
+#' resmx$value
 #'
 #' # Diagnostics with error bar and frequent trace reports
 #' # Attention: Both error bar and reports impede performance!
 #' \dontrun{
-#'   progressr::handlers(global = TRUE)
-#' }
+#' progressr::handlers(global = TRUE)
 #' resdiag <- simann(par = 50, fn = fw,
 #'                   control = list(maxit = 20000,
-#'                                  temp = 100,
-#'                                   REPORT = 1))
+#'                                  temp = 20,
+#'                                  parscale = 20,
+#'                                  REPORT = 1))
+#' }
+
 simann <- function(par, fn,
                    lower = NULL, upper = NULL,
                    control){
   maxit <- 10000
   temp <- 10
   tmax <- 10
+  parscale <- 0
   # Keeping the original function in case of transformation
   fn_raw <- fn
   # Should the algorithm's trace be reported every REPORT steps?
@@ -125,6 +133,9 @@ simann <- function(par, fn,
   }
   if(!is.null(control$temp)){
     temp <- control$temp
+  }
+  if(!is.null(control$parscale)){
+    parscale <- control$parscale
   }
   if(!is.null(control$fnscale)){
     fnscale <- control$fnscale
@@ -172,7 +183,11 @@ simann <- function(par, fn,
   for(i in (1:maxit)){
     tnow <- temp / log(((i-1) %/% tmax)*tmax + exp(1))
     scale <- tnow/temp
+    if(!is.null(parscale)){
+      scale <- parscale * scale
+    }
     ptry <- genptry(p, scale)
+
     if(bounded){
       for(j in (1:length(par))){
 
