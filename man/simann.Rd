@@ -2,29 +2,30 @@
 % Please edit documentation in R/simann.R
 \name{simann}
 \alias{simann}
-\title{Simulated Annealing}
+\title{Simulated Annealing Algorithm}
 \usage{
 simann(par, fn, lower = NULL, upper = NULL, control)
 }
 \arguments{
-\item{par}{numeric, start value for the algorithm}
+\item{par}{A numeric scalar, start value for the algorithm.}
 
-\item{fn}{the function to be minimized}
+\item{fn}{The function to be optimized, taking one or several parameters and
+returning a numeric value.}
 
-\item{lower}{numeric, lower boundary of the parameter vector}
+\item{lower}{A numeric vector, lower boundary of the parameter vector.}
 
-\item{upper}{numeric, upper boundary of the parameter vector}
+\item{upper}{A numeric vector, upper boundary of the parameter vector.}
 
-\item{control}{a list of further control parameters for the algorithm}
+\item{control}{A list of further control parameters for the algorithm.}
 }
 \value{
-a list containing \code{par}, the parameter combination of the optimum,
-\code{value}, the optimal function value, and \code{trace}, a \code{data.frame} of all visited
-parameter values.
+A list containing \code{par}, the parameter combination of the optimum,
+\code{value}, the optimal function value, and \code{trace}, a \code{data.frame} of parameter
+values visited during the algorithm's run.
 }
 \description{
 This is almost a precise re-write of the simulated annealing
-function \code{stats::optim(method = "SANN")} as implemented in the file
+optimization algorithm \code{stats::optim(method = "SANN")} as implemented in the file
 \code{r-source/src/appl/optim.c}. In particular, temperature is updated
 step by step with respect to the formula
 $$ T^{(i)} = T_{\text{start}} / \log(((i-1) \%/\% tmax)*tmax + exp(1))$$
@@ -56,14 +57,14 @@ Then, use this updated component of the candidate.
 
 The list \code{control} may contain the following objects:
 \itemize{
-\item \code{maxit}: the maximal number of temperature steps, defaults to \code{10000},
-\item \code{temp}: the initial temperature, defaults to \code{10},
-\item \code{tmax}: the maximal number of function evaluations at each
-temperature step, defaults to \code{10},
-\item \code{fnscale}: a scaling factor by which the value of \code{fn} is divided during
+\item \code{maxit}: The maximal number of temperature steps, defaults to \code{10000},
+\item \code{temp}: The initial temperature, defaults to \code{10}.
+\item \code{tmax}: The maximal number of function evaluations at each
+temperature step, defaults to \code{10}.
+\item \code{fnscale}: A scaling factor by which the value of \code{fn} is divided during
 optimization. If it is negative, it turns the problem into a maximization
-problem,
-\item \code{REPORT}: an integer determining that the algorithms current state is
+problem.
+\item \code{REPORT}: An integer determining that the algorithms current state is
 reported every \code{REPORT} steps. If \code{NA_integer_}, no trace is reported. Defaults
 to 100. Also determines how often the progress bar is updated.
 }

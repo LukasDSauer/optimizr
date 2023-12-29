@@ -1,8 +1,7 @@
-
-#' Simulated Annealing
+#' Simulated Annealing Algorithm
 #'
 #' This is almost a precise re-write of the simulated annealing
-#' function `stats::optim(method = "SANN")` as implemented in the file
+#' optimization algorithm `stats::optim(method = "SANN")` as implemented in the file
 #' `r-source/src/appl/optim.c`. In particular, temperature is updated
 #' step by step with respect to the formula
 #' $$ T^{(i)} = T_{\text{start}} / \log(((i-1) %/% tmax)*tmax + exp(1))$$
@@ -26,29 +25,24 @@
 #' $p^{\text{try}}_i\mod 2\in [0, 1]$ or $2 - p^{\text{try}}_i \mod 2\in [0, 1]$.
 #' Then, use this updated component of the candidate.
 #'
-#' @param par numeric, start value for the algorithm
-#' @param fn the function to be minimized
-#' @param lower numeric, lower boundary of the parameter vector
-#' @param upper numeric, upper boundary of the parameter vector
-#' @param control a list of further control parameters for the algorithm
+#' @param par A numeric scalar, start value for the algorithm.
+#' @inheritParams algorithm
 #'
 #' @section Control parameters:
 #'
 #' The list `control` may contain the following objects:
-#' * `maxit`: the maximal number of temperature steps, defaults to `10000`,
-#' * `temp`: the initial temperature, defaults to `10`,
-#' * `tmax`: the maximal number of function evaluations at each
-#'    temperature step, defaults to `10`,
-#' * `fnscale`: a scaling factor by which the value of `fn` is divided during
+#' * `maxit`: The maximal number of temperature steps, defaults to `10000`,
+#' * `temp`: The initial temperature, defaults to `10`.
+#' * `tmax`: The maximal number of function evaluations at each
+#'    temperature step, defaults to `10`.
+#' * `fnscale`: A scaling factor by which the value of `fn` is divided during
 #'    optimization. If it is negative, it turns the problem into a maximization
-#'    problem,
-#' * `REPORT`: an integer determining that the algorithms current state is
+#'    problem.
+#' * `REPORT`: An integer determining that the algorithms current state is
 #'    reported every `REPORT` steps. If `NA_integer_`, no trace is reported. Defaults
 #'    to 100. Also determines how often the progress bar is updated.
 #'
-#' @return a list containing `par`, the parameter combination of the optimum,
-#' `value`, the optimal function value, and `trace`, a `data.frame` of all visited
-#' parameter values.
+#' @inherit algorithm return
 #'
 #' @references Haario H, Saksman E. Simulated Annealing Process in General State Space. Advances in Applied Probability, Vol. 23, No. 4 (Dec., 1991), pp. 866-893, [https://doi.org/10.2307/1427681].
 #'
@@ -95,6 +89,7 @@
 simann <- function(par, fn,
                    lower = NULL, upper = NULL,
                    control){
+  # Default control values
   maxit <- 10000
   temp <- 10
   tmax <- 10
@@ -107,59 +102,43 @@ simann <- function(par, fn,
   # Is the parameter space bounded?
   bounded <- !is.null(lower) | !is.null(upper)
   if(bounded){
-    if(length(lower) != length(par) | length(upper) != length(par)){
-      stop("Lower and upper bound must have the same length as the
-           start vector!")
-    }
-    if(!all(lower < upper)){
-      stop("Lower bound must be below upper bound!")
-    }
     if(!is.null(lower)){
-      if(lower > par){
+      if(length(lower) != length(par)){
+        stop("Lower bound must have the same length as the start vector!")
+      }
+      if(!all(lower <= par)){
         stop("Lower bound must be less or equal to start parameter!")
       }
     }
     if(!is.null(upper)){
-      if(upper < par){
+      if(length(upper) != length(par)){
+        stop("Lower bound must have the same length as the start vector!")
+      }
+      if(!all(upper >= par)){
         stop("Upper bound must be greater or equal to start parameter!")
       }
     }
   }
-  if(!is.null(control$maxit)){
-    maxit <- control$maxit
-  }
-  if(!is.null(control$tmax)){
-    tmax <- control$tmax
-  }
-  if(!is.null(control$temp)){
-    temp <- control$temp
-  }
-  if(!is.null(control$parscale)){
-    parscale <- control$parscale
-  }
+  # Custom control values
+  if(!is.null(control$maxit)) maxit <- control$maxit
+  if(!is.null(control$tmax)) tmax <- control$tmax
+  if(!is.null(control$temp)) temp <- control$temp
+  if(!is.null(control$parscale)) parscale <- control$parscale
   if(!is.null(control$fnscale)){
     fnscale <- control$fnscale
     fn <- function(x) {fn_raw(x)/fnscale}
   }
   if(!is.null(control$REPORT)){
     REPORT <- control$REPORT
-    trace_rep <- !is.na(REPORT)
+    trace_rep <- !is.na(REPORT) & (REPORT > 0)
   }
-
-
-
+  # Simulated annealing algorithm
   p <- par
   y <- fn(par)
   popt <- par
   yopt <- y
-  par_names <- names(par)
-  fn_name <- names(y)
-  if(is.null(par_names)){
-    par_names <- paste0("par", (1:length(par)))
-  }
-  if(is.null(fn_name)){
-    fn_name <- "fn"
-  }
+  par_names <- get_par_names(par)
+  fn_name <- get_fn_name(y)
 
   if(trace_rep){
     trace_len <- floor(maxit / REPORT)
@@ -257,6 +236,7 @@ simann <- function(par, fn,
 genptry <- function(p, scale){
     return(p + scale * rnorm(n = length(p), mean = 0, sd = 1))
 }
+
 #' Transform an interval to the unit interval
 #'
 #' A monotonously increasing bijection on the real line that maps the interval
@@ -273,6 +253,7 @@ genptry <- function(p, scale){
 phi <- function(x, lower, upper){
   return((x - lower)/(upper - lower))
 }
+
 #' Transform the unit interval to another interval
 #'
 #' A monotonously increasing bijection on the real line that maps the unit
