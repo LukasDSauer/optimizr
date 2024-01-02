@@ -7,10 +7,10 @@
 simann(par, fn, lower = NULL, upper = NULL, control)
 }
 \arguments{
-\item{par}{A numeric scalar, start value for the algorithm.}
+\item{par}{A numeric vector, start values for the algorithm.}
 
-\item{fn}{The function to be optimized, taking one or several parameters and
-returning a numeric value.}
+\item{fn}{The function to be optimized, taking a numeric vector of parameters
+and returning a numeric value.}
 
 \item{lower}{A numeric vector, lower boundary of the parameter vector.}
 
@@ -97,8 +97,8 @@ resmx <- simann(par = 3, fn = fw,
 resmx$par
 resmx$value
 
-# Diagnostics with error bar and frequent trace reports
-# Attention: Both error bar and reports impede performance!
+# Diagnostics with progress bar and frequent trace reports
+# Attention: Both progress bar and reports impede performance!
 \dontrun{
 progressr::handlers(global = TRUE)
 resdiag <- simann(par = 50, fn = fw,

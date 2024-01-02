@@ -15,8 +15,8 @@ gridsearch(
 )
 }
 \arguments{
-\item{fn}{The function to be optimized, taking one or several parameters and
-returning a numeric value.}
+\item{fn}{The function to be optimized, taking a numeric vector of parameters
+and returning a numeric value.}
 
 \item{lower}{A numeric vector, lower boundary of the parameter vector.}
 
@@ -58,13 +58,18 @@ The list \code{control} may contain the following objects:
 \itemize{
 \item \code{fnscale}: A numeric, if it is non-negative or NULL, the algorithm searches
 for the minimum, if it is negative, it searches for the maximum.
-\item \code{REPORT}: An integer, if it is \code{NA_integer_} or non-positive, no trace is
-reported. By default, a trace is reported.
+\item \code{REPORT}: An integer, if it is \code{NA_integer_} or negative, no trace is
+reported. If \verb{>=0}, a trace is reported. If \verb{>0}, status updates are sent
+to a \code{progressr} handler every step. By default, \code{REPORT = 0}.
 }
 }
 
 \examples{
-fn <- function(x, y) (-1)*dnorm(x, mean = 3.9)*dnorm(y, mean = 3.02)
+fn <- function(vec){
+  return(c(result =
+  (-1)*dnorm(vec[["x"]], mean = 3.9)*dnorm(vec[["y"]], mean = 3.02)))
+}
+
 # Define grid using lower and upper bounds and step widths
 gridsearch(fn,
            lower = c(x = -10, y = -10),
@@ -77,4 +82,19 @@ gridsearch(fn,
 grid <- data.frame(x = (-10:10), y = (-10:10))
 gridsearch(fn,
            grid = grid)
+# Diagnostics with progress bar
+# Attention: Progress bar impedes performance!
+\dontrun{
+progressr::handlers(global = TRUE)
+fn <- function(vec){
+  Sys.sleep(0.1)
+  return(c(result =
+  (-1)*dnorm(vec[["x"]], mean = 3.9)*dnorm(vec[["y"]], mean = 3.02)))
+}
+gridsearch(fn,
+           lower = c(x = -10, y = -10),
+           upper = c(x = 10, y = 10),
+           step = c(x = 0.5, y = 0.5),
+           control = list(REPORT = 1))
+}
 }

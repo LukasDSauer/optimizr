@@ -11,7 +11,7 @@ get_par_names(x)
 }
 \value{
 a character vector, either the names of \code{x} or strings of the form
-\code{"par1"}, \code{"par2"}, etc.
+\code{"Var1"}, \code{"Var2"}, etc.
 }
 \description{
 Get names for the parameter vector

@@ -25,7 +25,7 @@
 #' $p^{\text{try}}_i\mod 2\in [0, 1]$ or $2 - p^{\text{try}}_i \mod 2\in [0, 1]$.
 #' Then, use this updated component of the candidate.
 #'
-#' @param par A numeric scalar, start value for the algorithm.
+#' @param par A numeric vector, start values for the algorithm.
 #' @inheritParams algorithm
 #'
 #' @section Control parameters:
@@ -75,8 +75,8 @@
 #' resmx$par
 #' resmx$value
 #'
-#' # Diagnostics with error bar and frequent trace reports
-#' # Attention: Both error bar and reports impede performance!
+#' # Diagnostics with progress bar and frequent trace reports
+#' # Attention: Both progress bar and reports impede performance!
 #' \dontrun{
 #' progressr::handlers(global = TRUE)
 #' resdiag <- simann(par = 50, fn = fw,
@@ -138,7 +138,6 @@ simann <- function(par, fn,
   popt <- par
   yopt <- y
   par_names <- get_par_names(par)
-  fn_name <- get_fn_name(y)
 
   if(trace_rep){
     trace_len <- floor(maxit / REPORT)
@@ -151,7 +150,7 @@ simann <- function(par, fn,
                         rep(NA_real_, trace_len),
                         rep(NA_real_, trace_len),
                         rep(NA_real_, trace_len))
-    names(trace) <- c("it", par_names, fn_name, "temp", "dy", "p_thresh")
+    names(trace) <- c("it", par_names, "fn", "temp", "dy", "p_thresh")
   }
 
   pb <- progressr::progressor(steps = trace_len,
