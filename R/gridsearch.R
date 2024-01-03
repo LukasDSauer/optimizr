@@ -32,8 +32,7 @@
 #'
 #' @examples
 #' fn <- function(vec){
-#'   return(c(result =
-#'   (-1)*dnorm(vec[["x"]], mean = 3.9)*dnorm(vec[["y"]], mean = 3.02)))
+#'   return((-1)*dnorm(vec[["x"]], mean = 3.9)*dnorm(vec[["y"]], mean = 3.02))
 #' }
 #'
 #' # Define grid using lower and upper bounds and step widths
@@ -63,6 +62,13 @@
 #'            step = c(x = 0.5, y = 0.5),
 #'            control = list(REPORT = 1))
 #' }
+#' # Parallelized grid search using doFuture
+#' library(doFuture)
+#' plan(multisession)
+#' gridsearch(fn,
+#'            lower = c(x = -10, y = -10),
+#'            upper = c(x = 10, y = 10),
+#'            step = c(x = 0.5, y = 0.5))
 gridsearch <- function(fn,
                        lower = NULL, upper = NULL, step = NULL,
                        axes = mapply(seq, from = lower, to = upper, by = step,
@@ -94,9 +100,13 @@ gridsearch <- function(fn,
       pb()
       return(fn(x))
     }
-    y <- apply(X = grid, MARGIN = 1, FUN = fn_report)
+    y <- foreach(i=1:nrow(grid), .combine=rbind,
+                 .options.future = list(seed = TRUE)) %dofuture%
+      fn_report(grid[i,])
   } else{
-    y <- apply(X = grid, MARGIN = 1, FUN = fn)
+    y <- foreach(i=1:nrow(grid), .combine=rbind,
+                 .options.future = list(seed = TRUE)) %dofuture%
+      fn(grid[i,])
   }
   # Find index of minimal or maximal value, respectively
   if(fnscale >= 0){

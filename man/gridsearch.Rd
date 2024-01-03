@@ -66,8 +66,7 @@ to a \code{progressr} handler every step. By default, \code{REPORT = 0}.
 
 \examples{
 fn <- function(vec){
-  return(c(result =
-  (-1)*dnorm(vec[["x"]], mean = 3.9)*dnorm(vec[["y"]], mean = 3.02)))
+  return((-1)*dnorm(vec[["x"]], mean = 3.9)*dnorm(vec[["y"]], mean = 3.02))
 }
 
 # Define grid using lower and upper bounds and step widths
@@ -87,7 +86,7 @@ gridsearch(fn,
 \dontrun{
 progressr::handlers(global = TRUE)
 fn <- function(vec){
-  Sys.sleep(0.1)
+  Sys.sleep(0.001)
   return(c(result =
   (-1)*dnorm(vec[["x"]], mean = 3.9)*dnorm(vec[["y"]], mean = 3.02)))
 }
@@ -97,4 +96,11 @@ gridsearch(fn,
            step = c(x = 0.5, y = 0.5),
            control = list(REPORT = 1))
 }
+# Parallelized grid search using doFuture
+library(doFuture)
+plan(multisession)
+gridsearch(fn,
+           lower = c(x = -10, y = -10),
+           upper = c(x = 10, y = 10),
+           step = c(x = 0.5, y = 0.5))
 }
