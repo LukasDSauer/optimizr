@@ -25,7 +25,11 @@
 #'    for the minimum, if it is negative, it searches for the maximum.
 #' * `REPORT`: An integer, if it is `NA_integer_` or negative, no trace is
 #'    reported. If `>=0`, a trace is reported. If `>0`, status updates are sent
-#'    to a `progressr` handler every step. By default, `REPORT = 0`.
+#'    to a `progressr` handler every step. By default, `REPORT = 0`,
+#' * `dofuture`: A logical, if `TRUE` the grid is searched using `foreach()` and
+#'   `%dofuture%`, if `FALSE`, it is searched using apply. By default,
+#'   `dofuture = TRUE`. Note that for actually using parallelization, you still
+#'   need to `future::plan()` the session.
 #'
 #' @inherit algorithm return
 #' @export
@@ -79,12 +83,14 @@ gridsearch <- function(fn,
   fnscale <- 1
   trace_rep <- TRUE
   REPORT <- 0
+  dofuture <- TRUE
   # Custom control values
   if(!is.null(control$fnscale)) fnscale <- control$fnscale
   if(!is.null(control$REPORT)){
     REPORT <- control$REPORT
     trace_rep <- !is.na(REPORT) & (REPORT >= 0)
   }
+  if(!is.null(control$dofuture)) dofuture <- control$dofuture
   if(is.null(grid)){
     stop("grid cannot be NULL. You need to supply either lower and upper
     parameter space boundaries together with step widths, or parameter space
@@ -100,13 +106,22 @@ gridsearch <- function(fn,
       pb()
       return(fn(x))
     }
-    y <- foreach(i=1:nrow(grid), .combine=rbind,
-                 .options.future = list(seed = TRUE)) %dofuture%
-      fn_report(grid[i,])
+    if(dofuture){
+      y <- foreach(i=1:nrow(grid), .combine=rbind,
+                   .options.future = list(seed = TRUE)) %dofuture%
+        fn_report(grid[i,])
+    } else {
+      y <- apply(X = grid, MARGIN = 1, FUN = fn_report)
+    }
+
   } else{
-    y <- foreach(i=1:nrow(grid), .combine=rbind,
-                 .options.future = list(seed = TRUE)) %dofuture%
-      fn(grid[i,])
+    if(dofuture){
+      y <- foreach(i=1:nrow(grid), .combine=rbind,
+                   .options.future = list(seed = TRUE)) %dofuture%
+        fn(grid[i,])
+    } else {
+      y <- apply(X = grid, MARGIN = 1, FUN = fn)
+    }
   }
   # Find index of minimal or maximal value, respectively
   if(fnscale >= 0){

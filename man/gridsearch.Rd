@@ -60,7 +60,11 @@ The list \code{control} may contain the following objects:
 for the minimum, if it is negative, it searches for the maximum.
 \item \code{REPORT}: An integer, if it is \code{NA_integer_} or negative, no trace is
 reported. If \verb{>=0}, a trace is reported. If \verb{>0}, status updates are sent
-to a \code{progressr} handler every step. By default, \code{REPORT = 0}.
+to a \code{progressr} handler every step. By default, \code{REPORT = 0},
+\item \code{dofuture}: A logical, if \code{TRUE} the grid is searched using \code{foreach()} and
+\verb{\%dofuture\%}, if \code{FALSE}, it is searched using apply. By default,
+\code{dofuture = TRUE}. Note that for actually using parallelization, you still
+need to \code{future::plan()} the session.
 }
 }
 
