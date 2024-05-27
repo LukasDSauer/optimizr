@@ -141,16 +141,24 @@ simann <- function(par, fn,
 
   if(trace_rep){
     trace_len <- floor(maxit / REPORT)
-    trace <- data.frame((1:trace_len),
-                        matrix(rep(par, trace_len),
-                               nrow = trace_len,
-                               ncol = length(par),
-                               byrow = TRUE),
-                        rep(y, trace_len),
-                        rep(NA_real_, trace_len),
-                        rep(NA_real_, trace_len),
-                        rep(NA_real_, trace_len))
-    names(trace) <- c("it", par_names, "fn", "temp", "dy", "p_thresh")
+    if(trace_len <= 0){
+      message(paste0("The reporting step width (control$REPORT =",
+                     REPORT,
+                     ") is less than the number of maximal iterations.",
+                     "Hence, no trace will be reported."))
+      trace_rep <- FALSE
+    } else {
+      trace <- data.frame((1:trace_len),
+                          matrix(rep(par, trace_len),
+                                 nrow = trace_len,
+                                 ncol = length(par),
+                                 byrow = TRUE),
+                          rep(y, trace_len),
+                          rep(NA_real_, trace_len),
+                          rep(NA_real_, trace_len),
+                          rep(NA_real_, trace_len))
+      names(trace) <- c("it", par_names, "fn", "temp", "dy", "p_thresh")
+    }
   }
 
   pb <- progressr::progressor(steps = trace_len,
