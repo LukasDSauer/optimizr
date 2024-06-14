@@ -2,3 +2,4 @@
 
 export(gridsearch)
 export(simann)
+importFrom(doFuture,`%dofuture%`)

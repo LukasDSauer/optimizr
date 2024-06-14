@@ -107,4 +107,8 @@ gridsearch(fn,
            lower = c(x = -10, y = -10),
            upper = c(x = 10, y = 10),
            step = c(x = 0.5, y = 0.5))
+\dontshow{
+## R CMD check: make sure any open connections are closed afterward
+if (!inherits(plan(), "sequential")) plan(sequential)
+}
 }

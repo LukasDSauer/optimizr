@@ -7,8 +7,11 @@ Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 Imports:
+    stats,
     progressr,
-    doFuture
+    doFuture,
+    foreach
+Suggest:
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

@@ -18,8 +18,5 @@ a real number
 }
 \description{
 A monotonously increasing bijection on the real line that maps the interval
-$\link[=\\text{l}, \\text{u}]{\text{l}, \text{u}}$ to the unit interval $\link{0, 1}$.
-}
-\examples{
-phiinv(phi(7, 2, 3), 2, 3) == 7
+\eqn{[\text{lower}, \text{upper}]} to the unit interval \eqn{[0, 1]}.
 }
