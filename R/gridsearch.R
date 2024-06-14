@@ -96,10 +96,10 @@ gridsearch <- function(fn,
     trace_rep <- !is.na(REPORT) & (REPORT >= 0)
   }
   if(!is.null(control$dofuture)) dofuture <- control$dofuture
-  if(is.null(grid)){
-    stop("grid cannot be NULL. You need to supply either lower and upper
-    parameter space boundaries together with step widths, or parameter space
-    grid axes, or a complete grid to be searched.")
+  if(is.null(grid) | nrow(grid) == 0 | ncol(grid) == 0){
+    stop("grid cannot be NULL or have 0 columns or rows. You need to supply
+    either lower and upper parameter space boundaries together with step widths,
+    or parameter space grid axes, or a complete grid to be searched.")
   }
   # Calculate utility function on all grid values
   if(REPORT > 0){
