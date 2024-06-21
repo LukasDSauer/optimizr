@@ -111,6 +111,7 @@ gridsearch <- function(fn,
                    .options.future = list(seed = TRUE)) %dofuture%
         fn_report(grid[i,])
     } else {
+      message("Use of doFuture is switched off.")
       y <- apply(X = grid, MARGIN = 1, FUN = fn_report)
     }
 
@@ -120,6 +121,7 @@ gridsearch <- function(fn,
                    .options.future = list(seed = TRUE)) %dofuture%
         fn(grid[i,])
     } else {
+      message("Use of doFuture is switched off.")
       y <- apply(X = grid, MARGIN = 1, FUN = fn)
     }
   }
