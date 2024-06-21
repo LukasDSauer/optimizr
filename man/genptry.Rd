@@ -18,6 +18,3 @@ a numeric vector
 Using a Gaussian kernel of standard deviation \emph{scale} around the current
 point, this function generates a new point nearby.
 }
-\examples{
-genptry(c(0, 0), 2)
-}

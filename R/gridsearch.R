@@ -32,6 +32,7 @@
 #'   need to `future::plan()` the session.
 #'
 #' @inherit algorithm return
+#' @importFrom doFuture `%dofuture%`
 #' @export
 #'
 #' @examples
@@ -73,6 +74,10 @@
 #'            lower = c(x = -10, y = -10),
 #'            upper = c(x = 10, y = 10),
 #'            step = c(x = 0.5, y = 0.5))
+#' \dontshow{
+#' ## R CMD check: make sure any open connections are closed afterward
+#' if (!inherits(plan(), "sequential")) plan(sequential)
+#' }
 gridsearch <- function(fn,
                        lower = NULL, upper = NULL, step = NULL,
                        axes = mapply(seq, from = lower, to = upper, by = step,
@@ -91,10 +96,10 @@ gridsearch <- function(fn,
     trace_rep <- !is.na(REPORT) & (REPORT >= 0)
   }
   if(!is.null(control$dofuture)) dofuture <- control$dofuture
-  if(is.null(grid)){
-    stop("grid cannot be NULL. You need to supply either lower and upper
-    parameter space boundaries together with step widths, or parameter space
-    grid axes, or a complete grid to be searched.")
+  if(is.null(grid) | nrow(grid) == 0 | ncol(grid) == 0){
+    stop("grid cannot be NULL or have 0 columns or rows. You need to supply
+    either lower and upper parameter space boundaries together with step widths,
+    or parameter space grid axes, or a complete grid to be searched.")
   }
   # Calculate utility function on all grid values
   if(REPORT > 0){
@@ -107,7 +112,7 @@ gridsearch <- function(fn,
       return(fn(x))
     }
     if(dofuture){
-      y <- foreach(i=1:nrow(grid), .combine=rbind,
+      y <- foreach::foreach(i=1:nrow(grid), .combine=rbind,
                    .options.future = list(seed = TRUE)) %dofuture%
         fn_report(grid[i,])
     } else {
@@ -117,7 +122,7 @@ gridsearch <- function(fn,
 
   } else{
     if(dofuture){
-      y <- foreach(i=1:nrow(grid), .combine=rbind,
+      y <- foreach::foreach(i=1:nrow(grid), .combine=rbind,
                    .options.future = list(seed = TRUE)) %dofuture%
         fn(grid[i,])
     } else {
