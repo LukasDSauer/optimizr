@@ -148,9 +148,9 @@ simann <- function(par, fn,
   if(trace_rep){
     trace_len <- floor(maxit / REPORT)
     if(trace_len <= 0){
-      message(paste0("The reporting step width (control$REPORT =",
+      message(paste0("The reporting step width (control$REPORT = ",
                      REPORT,
-                     ") is less than the number of maximal iterations.",
+                     ") is less than the number of maximal iterations. ",
                      "Hence, no trace will be reported."))
       trace_rep <- FALSE
     } else {
