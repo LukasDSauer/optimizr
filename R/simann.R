@@ -165,12 +165,13 @@ simann <- function(par, fn,
                           rep(NA_real_, trace_len))
       names(trace) <- c("it", par_names, "fn", "temp", "dy", "p_thresh")
     }
+    pb <- progressr::progressor(steps = trace_len,
+                                label = "Simulated annealing",
+                                message = "Running simulated annealing")
+    pb("Running simulated annealing", class = "sticky", amount = 0)
   }
 
-  pb <- progressr::progressor(steps = trace_len,
-                              label = "Simulated annealing",
-                              message = "Running simulated annealing")
-  pb("Running simulated annealing", class = "sticky", amount = 0)
+
 
   for(i in (1:maxit)){
     tnow <- temp / log(((i-1) %/% tmax)*tmax + exp(1))
