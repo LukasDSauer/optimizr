@@ -26,13 +26,14 @@
 #' * `REPORT`: An integer, if it is `NA_integer_` or negative, no trace is
 #'    reported. If `>=0`, a trace is reported. If `>0`, status updates are sent
 #'    to a `progressr` handler every step. By default, `REPORT = 0`,
-#' * `use_future`: A logical, if `TRUE` the grid is searched using `foreach()` and
-#'   `%dofuture%`, if `FALSE`, it is searched using apply. By default,
+#' * `use_future`: A logical, if `TRUE` the grid is searched using
+#'   `future.apply::future_apply`, if `FALSE`, it is searched using apply.
+#'    By default,
 #'   `use_future = TRUE`. Note that for actually using parallelization, you still
 #'   need to `future::plan()` the session.
 #'
 #' @inherit algorithm return
-#' @importFrom doFuture `%dofuture%`
+#' @importFrom future.apply future_apply
 #' @export
 #'
 #' @examples
@@ -122,9 +123,7 @@ gridsearch <- function(fn,
 
   } else{
     if(use_future){
-      y <- foreach::foreach(i=1:nrow(grid), .combine=rbind,
-                   .options.future = list(seed = TRUE)) %dofuture%
-        fn(grid[i,])
+      y <- future.apply::future_apply(X = grid, MARGIN = 1, FUN = fn)
     } else {
       message("Use of doFuture is switched off.")
       y <- apply(X = grid, MARGIN = 1, FUN = fn)

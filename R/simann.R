@@ -39,6 +39,8 @@
 #' * `temp`: The initial temperature, defaults to `10`.
 #' * `tmax`: The maximal number of function evaluations at each
 #'   temperature step, defaults to `10`.
+#' * `parscale`: A scaling factor by which the parameter vector is scaled before
+#'   plugging it into `fn`.
 #' * `fnscale`: A scaling factor by which the value of `fn` is divided during
 #'   optimization. If it is negative, it turns the problem into a maximization
 #'   problem.
@@ -118,12 +120,19 @@ simann <- function(par, fn,
     }
     if(!is.null(upper)){
       if(length(upper) != length(par)){
-        stop("Lower bound must have the same length as the start vector!")
+        stop("Upper bound must have the same length as the start vector!")
       }
       if(!all(upper >= par)){
         stop("Upper bound must be greater or equal to start parameter!")
       }
     }
+  }
+  # Complete boundaries if only one vector is given
+  if(bounded & is.null(lower)){
+    lower <- rep(-Inf, length(upper))
+  }
+  if(bounded & is.null(upper)){
+    upper <- rep(Inf, length(lower))
   }
   # Custom control values
   if(!is.null(control$maxit)) maxit <- control$maxit
@@ -150,7 +159,7 @@ simann <- function(par, fn,
     if(trace_len <= 0){
       message(paste0("The reporting step width (control$REPORT = ",
                      REPORT,
-                     ") is less than the number of maximal iterations. ",
+                     ") is more than the number of maximal iterations. ",
                      "Hence, no trace will be reported."))
       trace_rep <- FALSE
     } else {
