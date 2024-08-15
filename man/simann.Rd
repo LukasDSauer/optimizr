@@ -65,6 +65,8 @@ The list \code{control} may contain the following objects:
 \item \code{temp}: The initial temperature, defaults to \code{10}.
 \item \code{tmax}: The maximal number of function evaluations at each
 temperature step, defaults to \code{10}.
+\item \code{parscale}: A scaling factor by which the parameter vector is scaled before
+plugging it into \code{fn}.
 \item \code{fnscale}: A scaling factor by which the value of \code{fn} is divided during
 optimization. If it is negative, it turns the problem into a maximization
 problem.

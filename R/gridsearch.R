@@ -103,7 +103,7 @@ gridsearch <- function(fn,
     or parameter space grid axes, or a complete grid to be searched.")
   }
   # Calculate utility function on all grid values
-  if(REPORT > 0){
+  if(trace_rep){
     pb <- progressr::progressor(steps = nrow(grid),
                                 label = "Grid search",
                                 message = "Running grid search")
@@ -113,9 +113,8 @@ gridsearch <- function(fn,
       return(fn(x))
     }
     if(use_future){
-      y <- foreach::foreach(i=1:nrow(grid), .combine=rbind,
-                   .options.future = list(seed = TRUE)) %dofuture%
-        fn_report(grid[i,])
+      y <- future.apply::future_apply(X = grid, MARGIN = 1, FUN = fn,
+                                      future.seed = TRUE)
     } else {
       message("Use of doFuture is switched off.")
       y <- apply(X = grid, MARGIN = 1, FUN = fn_report)
@@ -123,7 +122,8 @@ gridsearch <- function(fn,
 
   } else{
     if(use_future){
-      y <- future.apply::future_apply(X = grid, MARGIN = 1, FUN = fn)
+      y <- future.apply::future_apply(X = grid, MARGIN = 1, FUN = fn,
+                                      future.seed = TRUE)
     } else {
       message("Use of doFuture is switched off.")
       y <- apply(X = grid, MARGIN = 1, FUN = fn)

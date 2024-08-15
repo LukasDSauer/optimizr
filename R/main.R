@@ -1,3 +1,5 @@
+#' Optimization algorithm
+#'
 #' @name algorithm
 #' @rdname algorithm
 #' @param fn The function to be optimized, taking a numeric vector of parameters
