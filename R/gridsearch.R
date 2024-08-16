@@ -113,10 +113,11 @@ gridsearch <- function(fn,
       return(fn(x))
     }
     if(use_future){
+      message("Use of future_apply() in gridsearch is switched on.")
       y <- future.apply::future_apply(X = grid, MARGIN = 1, FUN = fn,
                                       future.seed = TRUE)
     } else {
-      message("Use of doFuture is switched off.")
+      message("Use of future_apply() in gridsearch is switched off.")
       y <- apply(X = grid, MARGIN = 1, FUN = fn_report)
     }
 
