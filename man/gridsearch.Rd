@@ -66,6 +66,10 @@ to a \code{progressr} handler every step. By default, \code{REPORT = 0},
 By default,
 \code{use_future = TRUE}. Note that for actually using parallelization, you still
 need to \code{future::plan()} the session.
+\item \code{future_apply_options}: A list of further options to be supplied to the
+\code{future_apply()} call. This is only used if \code{use_future} is \code{TRUE}. For
+example, use \code{future_apply_options = list((future.globals = structure(TRUE, add = c("globalvar"))))}
+will bring a global variable \code{globalvar} into the grid search call.
 }
 }
 

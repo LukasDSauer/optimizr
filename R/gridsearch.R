@@ -31,6 +31,10 @@
 #'    By default,
 #'   `use_future = TRUE`. Note that for actually using parallelization, you still
 #'   need to `future::plan()` the session.
+#' * `future_apply_options`: A list of further options to be supplied to the
+#'   `future_apply()` call. This is only used if `use_future` is `TRUE`. For
+#'   example, use `future_apply_options = list((future.globals = structure(TRUE, add = c("globalvar"))))`
+#'   will bring a global variable `globalvar` into the grid search call.
 #'
 #' @inherit algorithm return
 #' @importFrom future.apply future_apply
@@ -90,7 +94,11 @@ gridsearch <- function(fn,
   trace_rep <- TRUE
   REPORT <- 0
   use_future <- TRUE
+  future_apply_options <- NULL
   # Custom control values
+  if(!is.null(control$future_apply_options)) {
+    future_apply_options <- control$future_apply_options
+  }
   if(!is.null(control$fnscale)) fnscale <- control$fnscale
   if(!is.null(control$REPORT)){
     REPORT <- control$REPORT
@@ -104,7 +112,7 @@ gridsearch <- function(fn,
   }
   # Calculate utility function on all grid values
   if(REPORT > 0){
-    pb <- progressr::progressor(steps = nrow(grid),
+    pb <- progressr::progressor(steps = nrow(grid) + 2,
                                 label = "Grid search",
                                 message = "Running grid search")
     pb("Running grid search", class = "sticky", amount = 0)
@@ -113,9 +121,9 @@ gridsearch <- function(fn,
       return(fn(x))
     }
     if(use_future){
-      y <- foreach::foreach(i=1:nrow(grid), .combine=rbind,
-                   .options.future = list(seed = TRUE)) %dofuture%
-        fn_report(grid[i,])
+      y <- do.call(future.apply::future_apply,
+                   c(list(X = grid, MARGIN = 1, FUN = fn_report),
+                     future_apply_options))
     } else {
       message("Use of doFuture is switched off.")
       y <- apply(X = grid, MARGIN = 1, FUN = fn_report)
@@ -123,7 +131,9 @@ gridsearch <- function(fn,
 
   } else{
     if(use_future){
-      y <- future.apply::future_apply(X = grid, MARGIN = 1, FUN = fn)
+      y <- do.call(future.apply::future_apply,
+                   c(list(X = grid, MARGIN = 1, FUN = fn_report),
+                     future_apply_options))
     } else {
       message("Use of doFuture is switched off.")
       y <- apply(X = grid, MARGIN = 1, FUN = fn)
@@ -135,6 +145,7 @@ gridsearch <- function(fn,
   } else if(fnscale < 0){
     iopt <- which.max(y)
   }
+  pb()
   # Get optimal values
   yopt <- y[iopt]
   popt <- unlist(grid[iopt, ])
