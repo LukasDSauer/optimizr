@@ -147,12 +147,6 @@ simann <- function(par, fn,
     REPORT <- control$REPORT
     trace_rep <- !is.na(REPORT) & (REPORT > 0)
   }
-  # Simulated annealing algorithm
-  p <- par
-  y <- fn(par)
-  popt <- par
-  yopt <- y
-  par_names <- get_par_names(par)
 
   if(trace_rep){
     trace_len <- floor(maxit / REPORT)
@@ -163,24 +157,32 @@ simann <- function(par, fn,
                      "Hence, no trace will be reported."))
       trace_rep <- FALSE
     } else {
-      trace <- data.frame((1:trace_len),
-                          matrix(rep(par, trace_len),
-                                 nrow = trace_len,
-                                 ncol = length(par),
-                                 byrow = TRUE),
-                          rep(y, trace_len),
-                          rep(NA_real_, trace_len),
-                          rep(NA_real_, trace_len),
-                          rep(NA_real_, trace_len))
-      names(trace) <- c("it", par_names, "fn", "temp", "dy", "p_thresh")
+      pb <- progressr::progressor(steps = trace_len + 2,
+                                  label = "Simulated annealing",
+                                  message = "Running simulated annealing")
+      pb("Running simulated annealing", class = "sticky", amount = 0)
     }
-    pb <- progressr::progressor(steps = trace_len,
-                                label = "Simulated annealing",
-                                message = "Running simulated annealing")
-    pb("Running simulated annealing", class = "sticky", amount = 0)
   }
 
-
+  # Simulated annealing algorithm
+  p <- par
+  y <- fn(par)
+  popt <- par
+  yopt <- y
+  par_names <- get_par_names(par)
+  if(trace_rep){
+    pb()
+    trace <- data.frame((1:trace_len),
+                        matrix(rep(par, trace_len),
+                               nrow = trace_len,
+                               ncol = length(par),
+                               byrow = TRUE),
+                        rep(y, trace_len),
+                        rep(NA_real_, trace_len),
+                        rep(NA_real_, trace_len),
+                        rep(NA_real_, trace_len))
+    names(trace) <- c("it", par_names, "fn", "temp", "dy", "p_thresh")
+  }
 
   for(i in (1:maxit)){
     tnow <- temp / log(((i-1) %/% tmax)*tmax + exp(1))
