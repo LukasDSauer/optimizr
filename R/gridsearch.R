@@ -114,8 +114,8 @@ gridsearch <- function(fn,
   if(trace_rep){
     pb <- progressr::progressor(steps = nrow(grid) + 2,
                                 label = "Grid search",
-                                message = "Running grid search")
-    pb("Running grid search", class = "sticky", amount = 0)
+                                message = "Running grid search.")
+    pb("Running grid search.", class = "sticky", amount = 0)
     fn_report <- function(x){
       pb()
       return(fn(x))
