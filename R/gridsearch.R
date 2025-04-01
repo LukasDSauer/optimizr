@@ -112,7 +112,7 @@ gridsearch <- function(fn,
   }
   # Calculate utility function on all grid values
   if(trace_rep){
-    pb <- progressr::progressor(steps = nrow(grid) + 2,
+    pb <- progressr::progressor(steps = nrow(grid) + 3,
                                 label = "Grid search",
                                 message = "Running grid search.")
     pb("Running grid search.", class = "sticky", amount = 0)
@@ -147,7 +147,9 @@ gridsearch <- function(fn,
   } else if(fnscale < 0){
     iopt <- which.max(y)
   }
-  pb()
+  if(trace_rep){
+    pb()
+  }
   # Get optimal values
   yopt <- y[iopt]
   popt <- unlist(grid[iopt, ])
@@ -159,7 +161,7 @@ gridsearch <- function(fn,
     trace <- cbind(grid, y)
     names(trace) <- c(par_names, "fn")
     res <- c(res, trace = list(trace))
-
+    pb()
   }
   # Return output
   return(res)
