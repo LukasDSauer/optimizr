@@ -1,0 +1,55 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# optimizr
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/LukasDSauer/optimizr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LukasDSauer/optimizr/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/LukasDSauer/optimizr/graph/badge.svg)](https://app.codecov.io/gh/LukasDSauer/optimizr)
+<!-- badges: end -->
+
+The **optimizr** R package currently contains two numerical optimization algorithms. One is a simple implementation of the primitive grid search algorithm, the other is an extension of the simulated annealing algorithm that can take custom boundaries into account. The methodology for this bounded simulated annealing algorithm is due to Haario and Saksman 1991.
+
+## Installation
+
+You can install the development version of optimizr from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("LukasDSauer/optimizr")
+```
+
+## Example
+
+In the following basic example, we optimize the "wild function" from the 
+`stats::optim()` examples, global minimum at about -15.81515.
+
+```{r example}
+library(optimizr)
+# "wild" function from the 
+fw <- function (x)
+  (10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80)
+simann(par = 50, 
+       fn = fw,
+       control = list(maxit = 20000, 
+                      temp = 10, 
+                      parscale = 20, 
+                      REPORT = NA_real_))
+```
+
+
+## Reference
+
+Haario H, Saksman E. Simulated Annealing Process in General State Space. *Advances in Applied Probability*, Vol. 23, No. 4 (Dec., 1991), pp. 866-893, doi:10.2307/1427681.
