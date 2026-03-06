@@ -8,6 +8,8 @@
 [![R-CMD-check](https://github.com/LukasDSauer/optimizr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LukasDSauer/optimizr/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/LukasDSauer/optimizr/graph/badge.svg)](https://app.codecov.io/gh/LukasDSauer/optimizr)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/optimizr)](https://CRAN.R-project.org/package=optimizr)
 <!-- badges: end -->
 
 The **optimizr** R package currently contains two numerical optimization
@@ -44,10 +46,10 @@ simann(par = 50,
                       parscale = 20, 
                       REPORT = NA_real_))
 #> $par
-#> [1] -15.81529
+#> [1] -15.8151
 #> 
 #> $value
-#> [1] 67.46791
+#> [1] 67.46775
 ```
 
 ## Reference

@@ -1,7 +1,7 @@
 Package: optimizr
 Type: Package
-Title: Further numerical optimization algorithms for R.
-Version: 1.0.0
+Title: Further numerical optimization algorithms for R
+Version: 1.0.1
 Authors@R: 
     person("Lukas D", "Sauer", , "sauer@imbi.uni-heidelberg.de", role = c("aut", "cre"))
 Description: The optimizr R package currently contains two
@@ -9,7 +9,7 @@ Description: The optimizr R package currently contains two
     the primitive grid search algorithm, the other is an extension of the
     simulated annealing algorithm that can take custom boundaries into
     account. The methodology for this bounded simulated annealing
-    algorithm is due to Haario and Saksman 1991.
+    algorithm is due to Haario and Saksman (1991), <doi:10.2307/1427681>.
 Imports:
     stats,
     progressr,
@@ -18,7 +18,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0),
     doFuture

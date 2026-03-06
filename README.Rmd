@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/LukasDSauer/optimizr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LukasDSauer/optimizr/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/LukasDSauer/optimizr/graph/badge.svg)](https://app.codecov.io/gh/LukasDSauer/optimizr)
+[![CRAN status](https://www.r-pkg.org/badges/version/optimizr)](https://CRAN.R-project.org/package=optimizr)
 <!-- badges: end -->
 
 The **optimizr** R package currently contains two numerical optimization algorithms. One is a simple implementation of the primitive grid search algorithm, the other is an extension of the simulated annealing algorithm that can take custom boundaries into account. The methodology for this bounded simulated annealing algorithm is due to Haario and Saksman 1991.
