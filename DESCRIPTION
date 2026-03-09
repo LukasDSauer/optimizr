@@ -1,6 +1,6 @@
 Package: optimizr
 Type: Package
-Title: Further numerical optimization algorithms for R
+Title: Further Numerical Optimization Algorithms for R
 Version: 1.0.1
 Authors@R: 
     person("Lukas D", "Sauer", , "sauer@imbi.uni-heidelberg.de", role = c("aut", "cre"))
