@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/optimizr)](https://CRAN.R-project.org/package=optimizr)
 <!-- badges: end -->
 
-The **optimizr** R package currently contains two numerical optimization algorithms. One is a simple implementation of the primitive grid search algorithm, the other is an extension of the simulated annealing algorithm that can take custom boundaries into account. The methodology for this bounded simulated annealing algorithm is due to Haario and Saksman 1991.
+A collection of numerical optimization algorithms (currently two). One is a simple implementation of the primitive grid search algorithm, the other is an extension of the simulated annealing algorithm that can take custom boundaries into account. The methodology for this bounded simulated annealing algorithm is due to Haario and Saksman 1991.
 
 ## Installation
 
