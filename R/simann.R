@@ -52,7 +52,7 @@
 #'
 #' @references Haario H, Saksman E. Simulated Annealing Process in General State
 #'   Space. Advances in Applied Probability, Vol. 23, No. 4 (Dec., 1991), pp.
-#'   866-893, \doi{10.2307/1427681}.
+#'   866-893, \doi{doi:10.2307/1427681}.
 #'
 #' @export
 #'

@@ -1,10 +1,10 @@
 Package: optimizr
 Type: Package
-Title: Further Numerical Optimization Algorithms for R
+Title: Further Numerical Optimization Algorithms
 Version: 1.0.1
 Authors@R: 
     person("Lukas D", "Sauer", , "sauer@imbi.uni-heidelberg.de", role = c("aut", "cre"))
-Description: A collection of numerical optimization algorithms (currently two). 
+Description: A collection of numerical optimization algorithms. 
     One is a simple implementation of
     the primitive grid search algorithm, the other is an extension of the
     simulated annealing algorithm that can take custom boundaries into
