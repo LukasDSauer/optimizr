@@ -92,7 +92,7 @@ gridsearch(fn,
            grid = grid)
 # Diagnostics with progress bar
 # Attention: Progress bar impedes performance!
-\dontrun{
+\donttest{
 progressr::handlers(global = TRUE)
 fn <- function(vec){
   Sys.sleep(0.001)

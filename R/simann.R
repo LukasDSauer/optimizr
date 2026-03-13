@@ -85,7 +85,7 @@
 #'
 #' # Diagnostics with progress bar and frequent trace reports
 #' # Attention: Both progress bar and reports impede performance!
-#' \dontrun{
+#' \donttest{
 #' progressr::handlers(global = TRUE)
 #' resdiag <- simann(par = 50, fn = fw,
 #'                   control = list(maxit = 20000,
