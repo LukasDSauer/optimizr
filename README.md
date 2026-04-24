@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# optimizr
+# optimizr <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
 
@@ -12,12 +12,11 @@ coverage](https://codecov.io/gh/LukasDSauer/optimizr/graph/badge.svg)](https://a
 status](https://www.r-pkg.org/badges/version/optimizr)](https://CRAN.R-project.org/package=optimizr)
 <!-- badges: end -->
 
-The **optimizr** R package currently contains two numerical optimization
-algorithms. One is a simple implementation of the primitive grid search
-algorithm, the other is an extension of the simulated annealing
-algorithm that can take custom boundaries into account. The methodology
-for this bounded simulated annealing algorithm is due to Haario and
-Saksman 1991.
+A collection of numerical optimization algorithms (currently two). One
+is a simple implementation of the primitive grid search algorithm, the
+other is an extension of the simulated annealing algorithm that can take
+custom boundaries into account. The methodology for this bounded
+simulated annealing algorithm is due to Haario and Saksman 1991.
 
 ## Installation
 
@@ -46,10 +45,10 @@ simann(par = 50,
                       parscale = 20, 
                       REPORT = NA_real_))
 #> $par
-#> [1] -15.8151
+#> [1] -15.81521
 #> 
 #> $value
-#> [1] 67.46775
+#> [1] 67.46776
 ```
 
 ## Reference
